@@ -18,6 +18,8 @@
 #include "caffe/neuron_layers.hpp"
 #include "caffe/proto/caffe.pb.h"
 
+#define MULS 2
+
 namespace caffe {
 
 const float kLOG_THRESHOLD = 1e-20;
@@ -43,6 +45,7 @@ class LossLayer : public Layer<Dtype> {
   virtual inline bool AllowForceBackward(const int bottom_index) const {
     return bottom_index != 1;
   }
+  float loss_weight_;
 };
 
 // Forward declare SoftmaxLayer for use in SoftmaxWithLossLayer.

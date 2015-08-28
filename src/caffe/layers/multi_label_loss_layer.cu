@@ -28,8 +28,14 @@ Dtype MultiLabelLossLayer<Dtype>::Forward_gpu(
   for (int i = 0; i < count; ++i) {
     if (target[i] != 0) {
     // Update the loss only if target[i] is not 0
-      loss -= input_data[i] * ((target[i] > 0) - (input_data[i] >= 0)) -
-          log(1 + exp(input_data[i] - 2 * input_data[i] * (input_data[i] >= 0)));
+    Dtype tloss = input_data[i] * ((target[i] > 0) - (input_data[i] >= 0)) -
+    	 log(1 + exp(input_data[i] - 2 * input_data[i] * (input_data[i] >= 0)));
+    if (tloss<0)
+        tloss*=MULS;
+     loss -= tloss;
+
+     //loss -= input_data[i] * ((target[i] > 0) - (input_data[i] >= 0)) -
+     //     log(1 + exp(input_data[i] - 2 * input_data[i] * (input_data[i] >= 0)));
     }
   }
   if (top->size() >= 1) {

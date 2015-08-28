@@ -10,6 +10,23 @@
 #include <driver_types.h>  // cuda driver types
 #include <glog/logging.h>
 
+#include <gflags/gflags.h>
+
+#include <climits>
+#include <cmath>
+#include <fstream>  // NOLINT(readability/streams)
+#include <iostream>  // NOLINT(readability/streams)
+#include <map>
+#include <set>
+#include <sstream>
+#include <string>
+#include <utility>  // pair
+#include <vector>
+
+#ifndef GFLAGS_GFLAGS_H_
+namespace gflags = google;
+#endif  // GFLAGS_GFLAGS_H_
+
 // Disable the copy and assignment operator for a class.
 #define DISABLE_COPY_AND_ASSIGN(classname) \
 private:\
@@ -63,6 +80,20 @@ namespace caffe {
 using boost::shared_ptr;
 
 
+// Common functions and classes from std that caffe often uses.
+using std::fstream;
+using std::ios;
+using std::isnan;
+using std::isinf;
+using std::iterator;
+using std::make_pair;
+using std::map;
+using std::ostringstream;
+using std::pair;
+using std::set;
+using std::string;
+using std::stringstream;
+using std::vector;
 // A singleton class to hold common caffe stuff, such as the handler that
 // caffe is going to use for cublas, curand, etc.
 class Caffe {
@@ -99,11 +130,12 @@ class Caffe {
     }
     return *(Get().random_generator_);
   }
+#ifndef CPU_ONLY
   inline static cublasHandle_t cublas_handle() { return Get().cublas_handle_; }
   inline static curandGenerator_t curand_generator() {
     return Get().curand_generator_;
   }
-
+#endif
   // Returns the mode: running on CPU or GPU.
   inline static Brew mode() { return Get().mode_; }
   // Returns the phase: TRAIN or TEST.

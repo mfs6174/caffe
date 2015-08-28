@@ -1,8 +1,12 @@
 // Copyright 2014 BVLC and contributors.
 
 package caffe;
-
+// Specifies the shape (dimensions) of a Blob.
+message BlobShape {
+  repeated int64 dim = 1 [packed = true];
+}
 message BlobProto {
+  optional BlobShape shape = 7;
   optional int32 num = 1 [default = 0];
   optional int32 channels = 2 [default = 0];
   optional int32 height = 3 [default = 0];
@@ -120,7 +124,8 @@ message LayerParameter {
   repeated string bottom = 2; // the name of the bottom blobs
   repeated string top = 3; // the name of the top blobs
   optional string name = 4; // the layer name
-
+   
+  repeated float loss_weight = 30;
   // NOTE
   // Add new LayerTypes to the enum below in lexicographical order (other than
   // starting with NONE), starting with the next available ID in the comment
@@ -167,6 +172,7 @@ message LayerParameter {
     TANH = 23;
     WINDOW_DATA = 24;
     THRESHOLD = 31;
+    SLICE = 35;
   }
   optional LayerType type = 5; // the layer type from the enum above
 
@@ -211,7 +217,7 @@ message LayerParameter {
   optional WindowDataParameter window_data_param = 20;
   optional ThresholdParameter threshold_param = 25;
   optional HingeLossParameter hinge_loss_param = 28;
-
+  optional SliceParameter slice_param = 29;
   // DEPRECATED: The layer parameters specified as a V0LayerParameter.
   // This should never be used by any code except to upgrade to the new
   // LayerParameter specification.
@@ -455,6 +461,16 @@ message WindowDataParameter {
   // warp: cropped window is warped to a fixed size and aspect ratio
   // square: the tightest square around the window is cropped
   optional string crop_mode = 11 [default = "warp"];
+}
+message SliceParameter {
+  // The axis along which to slice -- may be negative to index from the end
+  // (e.g., -1 for the last axis).
+  // By default, SliceLayer concatenates blobs along the "channels" axis (1).
+  optional int32 axis = 3 [default = 1];
+  repeated uint32 slice_point = 2;
+
+  // DEPRECATED: alias for "axis" -- does not support negative indexing.
+  optional uint32 slice_dim = 1 [default = 1];
 }
 
 // DEPRECATED: V0LayerParameter is the old way of specifying layer parameters
