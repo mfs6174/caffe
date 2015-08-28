@@ -90,6 +90,8 @@ Layer<Dtype>* GetLayer(const LayerParameter& param) {
     return new WindowDataLayer<Dtype>(param);
   case LayerParameter_LayerType_SLICE:
     return new SliceLayer<Dtype>(param);
+ case LayerParameter_LayerType_ZERO_OUTPUT:
+    return new ZeroOutputLayer<Dtype>(param);
   case LayerParameter_LayerType_NONE:
     LOG(FATAL) << "Layer " << name << " has unspecified type.";
   default:
