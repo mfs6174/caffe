@@ -29,6 +29,8 @@ void SoftmaxWithLossLayer<Dtype>::SetUp(const vector<Blob<Dtype>*>& bottom,
     (*top)[1]->Reshape(bottom[0]->num(), bottom[0]->channels(),
         bottom[0]->height(), bottom[0]->width());
   }
+  loss_weight = this->layer_param_.loss_weight();
+  std::cout<<"loss weight is "<<loss_weight<<std::endl;
 }
 
 template <typename Dtype>
@@ -52,7 +54,7 @@ Dtype SoftmaxWithLossLayer<Dtype>::Forward_cpu(
   if (top->size() == 2) {
     (*top)[1]->ShareData(prob_);
   }
-  return loss / num;
+  return loss / num * loss_weight;
 }
 
 template <typename Dtype>
@@ -74,7 +76,7 @@ void SoftmaxWithLossLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
       bottom_diff[i * dim + static_cast<int>(label[i])] -= 1;
     }
     // Scale down gradient
-    caffe_scal(prob_.count(), Dtype(1) / num, bottom_diff);
+    caffe_scal(prob_.count(), Dtype(1) *loss_weight / num, bottom_diff);
   }
 }
 

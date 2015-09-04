@@ -32,6 +32,9 @@ void MultiLabelLossLayer<Dtype>::FurtherSetUp(
     (*top)[1]->ReshapeLike(*sigmoid_output_.get());
     (*top)[1]->ShareData(*sigmoid_output_.get());
   }
+  loss_weight = this->layer_param_.loss_weight();
+  loss_weight = 0.001;
+  std::cout<<"loss weight is "<<loss_weight<<std::endl;
 }
 
 template <typename Dtype>
@@ -62,7 +65,7 @@ Dtype MultiLabelLossLayer<Dtype>::Forward_cpu(
       (*top)[0]->mutable_cpu_data()[0] = loss / num;
     }
   }
-  return loss / num;
+  return loss / num * loss_weight;
 }
 
 template <typename Dtype>
@@ -90,7 +93,7 @@ void MultiLabelLossLayer<Dtype>::Backward_cpu(
       }
     }
     // Scale down gradient
-    caffe_scal(count, Dtype(1) / num, bottom_diff);
+    caffe_scal(count, Dtype(1) * loss_weight / num, bottom_diff);
   }
 }
 

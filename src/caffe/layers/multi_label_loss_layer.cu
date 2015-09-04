@@ -41,7 +41,7 @@ Dtype MultiLabelLossLayer<Dtype>::Forward_gpu(
   if (top->size() >= 1) {
     (*top)[0]->mutable_cpu_data()[0] = loss / num;
   }
-  return loss / num;
+  return loss / num * loss_weight;
 }
 
 template <typename Dtype>

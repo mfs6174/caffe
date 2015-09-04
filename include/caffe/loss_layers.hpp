@@ -45,7 +45,6 @@ class LossLayer : public Layer<Dtype> {
   virtual inline bool AllowForceBackward(const int bottom_index) const {
     return bottom_index != 1;
   }
-  float loss_weight_;
 };
 
 // Forward declare SoftmaxLayer for use in SoftmaxWithLossLayer.
@@ -93,6 +92,8 @@ class SoftmaxWithLossLayer : public Layer<Dtype> {
   // Vector holders to call the underlying softmax layer forward and backward.
   vector<Blob<Dtype>*> softmax_bottom_vec_;
   vector<Blob<Dtype>*> softmax_top_vec_;
+  
+  float loss_weight;
 };
 
 /* SigmoidCrossEntropyLossLayer
@@ -178,6 +179,8 @@ class MultiLabelLossLayer : public LossLayer<Dtype> {
   // Vector holders to call the underlying sigmoid layer forward and backward.
   vector<Blob<Dtype>*> sigmoid_bottom_vec_;
   vector<Blob<Dtype>*> sigmoid_top_vec_;
+
+  float loss_weight;
 };
 
 

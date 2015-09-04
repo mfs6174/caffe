@@ -125,7 +125,7 @@ message LayerParameter {
   repeated string top = 3; // the name of the top blobs
   optional string name = 4; // the layer name
    
-  repeated float loss_weight = 30;
+  optional float loss_weight = 30;
   // NOTE
   // Add new LayerTypes to the enum below in lexicographical order (other than
   // starting with NONE), starting with the next available ID in the comment
