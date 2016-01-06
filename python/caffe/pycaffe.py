@@ -10,7 +10,8 @@ except:
     from itertools import zip_longest as izip_longest
 import numpy as np
 
-from ._caffe import Net, SGDSolver
+from ._caffe import Net, SGDSolver, NesterovSolver, AdaGradSolver, \
+        RMSPropSolver, AdaDeltaSolver, AdamSolver
 import caffe.io
 
 # We directly update methods from Net here (rather than using composition or
@@ -145,8 +146,6 @@ def _Net_backward(self, diffs=None, start=None, end=None, **kwargs):
         # Set top diffs according to defined shapes and make arrays single and
         # C-contiguous as Caffe expects.
         for top, diff in kwargs.iteritems():
-            if diff.ndim != 4:
-                raise Exception('{} diff is not 4-d'.format(top))
             if diff.shape[0] != self.blobs[top].num:
                 raise Exception('Diff is not batch sized')
             self.blobs[top].diff[...] = diff
@@ -217,9 +216,9 @@ def _Net_forward_backward_all(self, blobs=None, diffs=None, **kwargs):
         batch_blobs = self.forward(blobs=blobs, **fb)
         batch_diffs = self.backward(diffs=diffs, **bb)
         for out, out_blobs in batch_blobs.iteritems():
-            all_outs[out].extend(out_blobs)
+            all_outs[out].extend(out_blobs.copy())
         for diff, out_diffs in batch_diffs.iteritems():
-            all_diffs[diff].extend(out_diffs)
+            all_diffs[diff].extend(out_diffs.copy())
     # Package in ndarray.
     for out, diff in zip(all_outs, all_diffs):
         all_outs[out] = np.asarray(all_outs[out])

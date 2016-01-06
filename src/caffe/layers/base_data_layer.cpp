@@ -1,10 +1,13 @@
 #include <boost/thread.hpp>
-#include <string>
 #include <vector>
 
-#include "caffe/data_layers.hpp"
-#include "caffe/net.hpp"
-#include "caffe/util/io.hpp"
+#include "caffe/blob.hpp"
+#include "caffe/data_transformer.hpp"
+#include "caffe/internal_thread.hpp"
+#include "caffe/layer.hpp"
+#include "caffe/layers/base_data_layer.hpp"
+#include "caffe/proto/caffe.pb.h"
+#include "caffe/util/blocking_queue.hpp"
 
 namespace caffe {
 
@@ -105,8 +108,7 @@ void BasePrefetchingDataLayer<Dtype>::Forward_cpu(
     const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
   Batch<Dtype>* batch = prefetch_full_.pop("Data layer prefetch queue empty");
   // Reshape to loaded data.
-  top[0]->Reshape(batch->data_.num(), batch->data_.channels(),
-      batch->data_.height(), batch->data_.width());
+  top[0]->ReshapeLike(batch->data_);
   // Copy the data
   caffe_copy(batch->data_.count(), batch->data_.cpu_data(),
              top[0]->mutable_cpu_data());

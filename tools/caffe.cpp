@@ -12,6 +12,7 @@ namespace bp = boost::python;
 
 #include "boost/algorithm/string.hpp"
 #include "caffe/caffe.hpp"
+#include "caffe/util/signal_handler.h"
 
 using caffe::Blob;
 using caffe::Caffe;
@@ -39,6 +40,12 @@ DEFINE_string(weights, "",
     "separated by ','. Cannot be set simultaneously with snapshot.");
 DEFINE_int32(iterations, 50,
     "The number of iterations to run.");
+DEFINE_string(sigint_effect, "stop",
+             "Optional; action to take when a SIGINT signal is received: "
+              "snapshot, stop or none.");
+DEFINE_string(sighup_effect, "snapshot",
+             "Optional; action to take when a SIGHUP signal is received: "
+             "snapshot, stop or none.");
 
 // A simple registry for caffe commands.
 typedef int (*BrewFunction)();
@@ -126,6 +133,22 @@ void CopyLayers(caffe::Solver<float>* solver, const std::string& model_list) {
   }
 }
 
+// Translate the signal effect the user specified on the command-line to the
+// corresponding enumeration.
+caffe::SolverAction::Enum GetRequestedAction(
+    const std::string& flag_value) {
+  if (flag_value == "stop") {
+    return caffe::SolverAction::STOP;
+  }
+  if (flag_value == "snapshot") {
+    return caffe::SolverAction::SNAPSHOT;
+  }
+  if (flag_value == "none") {
+    return caffe::SolverAction::NONE;
+  }
+  LOG(FATAL) << "Invalid signal effect \""<< flag_value << "\" was specified";
+}
+
 // Train / Finetune a model.
 int train() {
   CHECK_GT(FLAGS_solver.size(), 0) << "Need a solver definition to train.";
@@ -134,7 +157,7 @@ int train() {
       "but not both.";
 
   caffe::SolverParameter solver_param;
-  caffe::ReadProtoFromTextFileOrDie(FLAGS_solver, &solver_param);
+  caffe::ReadSolverParamsFromTextFileOrDie(FLAGS_solver, &solver_param);
 
   // If the gpus flag is not provided, allow the mode and device to be set
   // in the solver prototxt.
@@ -151,6 +174,7 @@ int train() {
   vector<int> gpus;
   get_gpus(&gpus);
   if (gpus.size() == 0) {
+    LOG(INFO) << "Use CPU.";
     Caffe::set_mode(Caffe::CPU);
   } else {
     ostringstream s;
@@ -165,7 +189,14 @@ int train() {
     Caffe::set_solver_count(gpus.size());
   }
 
-  shared_ptr<Solver<float> > solver(caffe::GetSolver<float>(solver_param));
+  caffe::SignalHandler signal_handler(
+        GetRequestedAction(FLAGS_sigint_effect),
+        GetRequestedAction(FLAGS_sighup_effect));
+
+  shared_ptr<caffe::Solver<float> >
+      solver(caffe::SolverRegistry<float>::CreateSolver(solver_param));
+
+  solver->SetActionFunction(signal_handler.GetActionFunction());
 
   if (FLAGS_snapshot.size()) {
     LOG(INFO) << "Resuming from " << FLAGS_snapshot;
