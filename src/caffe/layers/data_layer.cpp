@@ -27,6 +27,7 @@ void DataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const int batch_size = this->layer_param_.data_param().batch_size();
   // Read a data point, and use it to initialize the top blob.
+  //<<<<<<< HEAD
   Datum& datum = *(reader_.full().peek());
 
   // Use data_transformer to infer the expected blob shape from datum.
@@ -37,6 +38,37 @@ void DataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   top[0]->Reshape(top_shape);
   for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
     this->prefetch_[i].data_.Reshape(top_shape);
+    //=======
+//   Datum datum;
+//   datum.ParseFromString(cursor_->value());
+
+//   bool force_color = this->layer_param_.data_param().force_encoded_color();
+//   if ((force_color && DecodeDatum(&datum, true)) ||
+//       DecodeDatumNative(&datum)) {
+//     LOG(INFO) << "Decoding Datum";
+//   }
+//   // image
+//   const int crop_size = this->layer_param_.transform_param().crop_size();
+//   int crop_h = this->layer_param_.transform_param().crop_h();
+//   int crop_w = this->layer_param_.transform_param().crop_w();
+//   if (crop_size > 0) {
+//     crop_h = crop_w = crop_size;
+//   }
+//   if (crop_h > 0 || crop_w > 0) {
+//     top[0]->Reshape(this->layer_param_.data_param().batch_size(),
+//         datum.channels(), crop_h, crop_w);
+//     this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
+//         datum.channels(), crop_h, crop_w);
+//     this->transformed_data_.Reshape(1, datum.channels(), crop_h, crop_w);
+//   } else {
+//     top[0]->Reshape(
+//         this->layer_param_.data_param().batch_size(), datum.channels(),
+//         datum.height(), datum.width());
+//     this->prefetch_data_.Reshape(this->layer_param_.data_param().batch_size(),
+//         datum.channels(), datum.height(), datum.width());
+//     this->transformed_data_.Reshape(1, datum.channels(),
+//       datum.height(), datum.width());
+// >>>>>>> Non-square
   }
   LOG(INFO) << "output data size: " << top[0]->num() << ","
       << top[0]->channels() << "," << top[0]->height() << ","
@@ -65,6 +97,7 @@ void DataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   // Reshape according to the first datum of each batch
   // on single input batches allows for inputs of varying dimension.
   const int batch_size = this->layer_param_.data_param().batch_size();
+  //<<<<<<< HEAD
   Datum& datum = *(reader_.full().peek());
   // Use data_transformer to infer the expected blob shape from datum.
   vector<int> top_shape = this->data_transformer_->InferBlobShape(datum);
@@ -74,6 +107,29 @@ void DataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   batch->data_.Reshape(top_shape);
 
   Dtype* top_data = batch->data_.mutable_cpu_data();
+// =======
+//   const int crop_size = this->layer_param_.transform_param().crop_size();
+//   const int crop_h = this->layer_param_.transform_param().crop_h();
+//   const int crop_w = this->layer_param_.transform_param().crop_w();
+//   bool force_color = this->layer_param_.data_param().force_encoded_color();
+//   if (batch_size == 1 && crop_size == 0 && crop_h == 0 && crop_w == 0) {
+//     Datum datum;
+//     datum.ParseFromString(cursor_->value());
+//     if (datum.encoded()) {
+//       if (force_color) {
+//         DecodeDatum(&datum, true);
+//       } else {
+//         DecodeDatumNative(&datum);
+//       }
+//     }
+//     this->prefetch_data_.Reshape(1, datum.channels(),
+//         datum.height(), datum.width());
+//     this->transformed_data_.Reshape(1, datum.channels(),
+//         datum.height(), datum.width());
+//   }
+
+//   Dtype* top_data = this->prefetch_data_.mutable_cpu_data();
+// >>>>>>> Non-square
   Dtype* top_label = NULL;  // suppress warnings about uninitialized variables
 
   if (this->output_labels_) {

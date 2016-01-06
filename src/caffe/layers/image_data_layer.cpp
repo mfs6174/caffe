@@ -64,6 +64,7 @@ void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   // Read an image, and use it to initialize the top blob.
   cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
                                     new_height, new_width, is_color);
+  //<<<<<<< HEAD
   CHECK(cv_img.data) << "Could not load " << lines_[lines_id_].first;
   // Use data_transformer to infer the expected blob shape from a cv_image.
   vector<int> top_shape = this->data_transformer_->InferBlobShape(cv_img);
@@ -74,6 +75,27 @@ void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   top_shape[0] = batch_size;
   for (int i = 0; i < this->PREFETCH_COUNT; ++i) {
     this->prefetch_[i].data_.Reshape(top_shape);
+// =======
+//   const int channels = cv_img.channels();
+//   const int height = cv_img.rows;
+//   const int width = cv_img.cols;
+//   // image
+//   const int crop_size = this->layer_param_.transform_param().crop_size();
+//   int crop_h = this->layer_param_.transform_param().crop_h();
+//   int crop_w = this->layer_param_.transform_param().crop_w();
+//   const int batch_size = this->layer_param_.image_data_param().batch_size();
+//   if (crop_size > 0) {
+//     crop_h = crop_w = crop_size;
+//   }
+//   if (crop_h > 0 || crop_w > 0) {
+//     top[0]->Reshape(batch_size, channels, crop_h, crop_w);
+//     this->prefetch_data_.Reshape(batch_size, channels, crop_h, crop_w);
+//     this->transformed_data_.Reshape(1, channels, crop_h, crop_w);
+//   } else {
+//     top[0]->Reshape(batch_size, channels, height, width);
+//     this->prefetch_data_.Reshape(batch_size, channels, height, width);
+//     this->transformed_data_.Reshape(1, channels, height, width);
+// >>>>>>> Non-square
   }
   top[0]->Reshape(top_shape);
 
@@ -109,6 +131,7 @@ void ImageDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   const int batch_size = image_data_param.batch_size();
   const int new_height = image_data_param.new_height();
   const int new_width = image_data_param.new_width();
+  //<<<<<<< HEAD
   const bool is_color = image_data_param.is_color();
   string root_folder = image_data_param.root_folder();
 
@@ -126,6 +149,27 @@ void ImageDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
 
   Dtype* prefetch_data = batch->data_.mutable_cpu_data();
   Dtype* prefetch_label = batch->label_.mutable_cpu_data();
+// =======
+//   const int crop_size = this->layer_param_.transform_param().crop_size();
+//   const int crop_h = this->layer_param_.transform_param().crop_h();
+//   const int crop_w = this->layer_param_.transform_param().crop_w();
+//   const bool needs_crop = crop_size != 0 || crop_h != 0 || crop_w != 0;
+//   const bool is_color = image_data_param.is_color();
+//   string root_folder = image_data_param.root_folder();
+
+//   // Reshape on single input batches for inputs of varying dimension.
+//   if (batch_size == 1 && !needs_crop && new_height == 0 && new_width == 0) {
+//     cv::Mat cv_img = ReadImageToCVMat(root_folder + lines_[lines_id_].first,
+//         0, 0, is_color);
+//     this->prefetch_data_.Reshape(1, cv_img.channels(),
+//         cv_img.rows, cv_img.cols);
+//     this->transformed_data_.Reshape(1, cv_img.channels(),
+//         cv_img.rows, cv_img.cols);
+//   }
+
+//   Dtype* prefetch_data = this->prefetch_data_.mutable_cpu_data();
+//   Dtype* prefetch_label = this->prefetch_label_.mutable_cpu_data();
+// >>>>>>> Non-square
 
   // datum scales
   const int lines_size = lines_.size();
