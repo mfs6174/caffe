@@ -306,7 +306,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 140 (last added: batch_norm_param)
+// LayerParameter next available layer-specific ID: 141 (last added: PReLU layer)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -391,6 +391,7 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+
 }
 
 // Message that stores parameters used to apply transformation
@@ -404,8 +405,8 @@ message TransformationParameter {
   optional bool mirror = 2 [default = false];
   // Specify if we would like to randomly crop an image.
   optional uint32 crop_size = 3 [default = 0];
-  optional uint32 crop_h = 6 [default = 0]; // The crop height
-  optional uint32 crop_w = 7 [default = 0]; // The crop width
+  optional uint32 crop_h = 8 [default = 0]; // The crop height
+  optional uint32 crop_w = 9 [default = 0]; // The crop width
   // mean_file and mean_value cannot be specified at the same time
   optional string mean_file = 4;
   // if specified can be repeated once (would substract it from all the channels)
@@ -1256,3 +1257,4 @@ message PReLUParameter {
   // Whether or not slope paramters are shared across channels.
   optional bool channel_shared = 2 [default = false];
 }
+
