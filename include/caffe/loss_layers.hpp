@@ -18,7 +18,7 @@
 #include "caffe/neuron_layers.hpp"
 #include "caffe/proto/caffe.pb.h"
 
-#define MULS 2
+#define MULS 1.0
 
 namespace caffe {
 

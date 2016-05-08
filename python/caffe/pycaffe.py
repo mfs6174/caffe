@@ -258,8 +258,10 @@ def _Net_preprocess(self, input_name, input_):
     """
     caffe_in = input_.astype(np.float32)
     input_scale = self.input_scale.get(input_name)
-    channel_order = self.channel_swap.get(input_name)
-    mean = self.mean.get(input_name)
+    #channel_order = self.channel_swap.get(input_name)
+    #mean = self.mean.get(input_name)
+    mean = None
+    channel_order = None
     in_size = self.blobs[input_name].data.shape[2:]
     if caffe_in.shape[:2] != in_size:
         caffe_in = caffe.io.resize_image(caffe_in, in_size)

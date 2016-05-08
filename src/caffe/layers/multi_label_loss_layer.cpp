@@ -33,7 +33,7 @@ void MultiLabelLossLayer<Dtype>::FurtherSetUp(
     (*top)[1]->ShareData(*sigmoid_output_.get());
   }
   loss_weight = this->layer_param_.loss_weight();
-  loss_weight = 0.001;
+  //loss_weight = 0.001;
   std::cout<<"loss weight is "<<loss_weight<<std::endl;
 }
 
