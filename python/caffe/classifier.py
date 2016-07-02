@@ -76,11 +76,12 @@ class Classifier(caffe.Net):
         caffe_in = np.asarray([self.preprocess(self.inputs[0], in_)
                     for in_ in inputs])
         out = self.forward_all(**{self.inputs[0]: caffe_in})
-        predictions = out[self.outputs[0]].squeeze(axis=(2,3))
-
+        #predictions = out[self.outputs[0]].squeeze(axis=(2,3))
+        predictions = [out[op].squeeze(axis=(2,3)) for op in self.outputs]
         # For oversampling, average predictions across crops.
         if oversample:
-            predictions = predictions.reshape((len(predictions) / 10, 10, -1))
-            predictions = predictions.mean(1)
+            for i,p in enumerate(predictions):
+                p = p.reshape((len(p) / 10, 10, -1))
+                predictions[i] = p.mean(1)
 
         return predictions
